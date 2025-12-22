@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+<!--/*layout:decorate="~{붙일 레이아웃 경로}" : 내 조각이 붙여질 위치>*/-->
+
+<div layout:fragment="content">
+	<div class="container-sm">
+		<h3>list page</h3>
+		<!--검색-->
+		<!--/*<div class="container-fluid m-2">
+			<form class="d-flex" role="search" action="/board/list" method="get">
+				<select class="form-select" name="type" aria-label="Default select example">
+					<option th:selected="${ph.pgvo.type eq null}">Choose...</option>
+					<option value="t" th:selected="${ph.pgvo.type eq 't'}">title</option>
+					<option value="w" th:selected="${ph.pgvo.type eq 'w'}">writer</option>
+					<option value="c" th:selected="${ph.pgvo.type eq 'c'}">content</option>
+					<option value="tc" th:selected="${ph.pgvo.type eq 'tc'}">title + content</option>
+					<option value="wc" th:selected="${ph.pgvo.type eq 'wc'}">writer + content</option>
+					<option value="tw" th:selected="${ph.pgvo.type eq 'tw'}">title + writer</option>
+					<option value="twc" th:selected="${ph.pgvo.type eq 'twc'}">all</option>
+				</select>
+				<input class="form-control me-2" type="search" name="keyword" th:value="${ph.pgvo.keyword}" placeholder="Search" aria-label="Search" />
+				<input type="hidden" name="pageNo" value="1">
+				<input type="hidden" name="qty" th:value="${ph.pgvo.qty}">
+				<button type="submit" class="btn btn-success position-relative">
+					Search
+					<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+						[[${ph.totalCount}]]
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+				</button>
+			</form>
+		</div>*/-->
+		<table class="table">
+			<thead>
+			<tr>
+				<th scope="col">bno</th>
+				<th scope="col">title</th>
+				<th scope="col">writer</th>
+				<th scope="col">regDate</th>
+				<th scope="col">readCount</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="board:${ph.list}">
+				<th scope="row">[[${board.bno}]]</th>
+				<td><a th:href="@{/board/detail(bno=${board.bno})}">[[${board.title}]]</a></td>
+				<td>[[${board.writer}]]</td>
+				<td>[[${#strings.substring(board.regDate, 0, 10)}]]</td>
+				<td>[[${board.readCount}]]</td>
+			</tr>
+			</tbody>
+		</table>
+
+		<!-- 페이지 네이션 -->
+		<!--/*th:classappend 클래스를 동적으로 추가하는 방법*/-->
+		<nav aria-label="Page navigation example">
+			<ul class="pagination justify-content-center">
+				<li class="page-item" th:classappend="${ph.prev ? '' : 'disabled'}">
+					<a class="page-link" th:href="@{/board/list(pageNo=${ph.startPage-1})}" aria-label="Previous">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+
+				<th:block th:each="i:${#numbers.sequence(ph.startPage, ph.endPage)}">
+					<li class="page-item">
+						<a class="page-link" th:href="@{/board/list(pageNo=${i})}">[[${i}]]</a>
+					</li>
+				</th:block>
+
+				<li class="page-item" th:classappend="${ph.next ? '' : 'disabled'}">
+					<a class="page-link" th:href="@{/board/list(pageNo=${ph.endPage+1})}" aria-label="Next">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>
