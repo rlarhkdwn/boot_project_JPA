@@ -15,7 +15,7 @@ public interface BoardService {
     *  Board(entity) : bno, title, writer, content, readCount, cmtQty, fileQty
     *  화면 => DB
     * */
-    default Board convertDtoToEntity(BoardDTO boardDTO){
+    default Board convertDTOToEntity(BoardDTO boardDTO){
         return Board.builder()
                 .bno(boardDTO.getBno())
                 .title(boardDTO.getTitle())
@@ -48,4 +48,10 @@ public interface BoardService {
     Long insert(BoardDTO boardDTO);
 
     Page<BoardDTO> getList(int pageNo);
+
+    BoardDTO getDetail(long bno);
+
+    Long modify(BoardDTO boardDTO);
+
+    void delete(BoardDTO boardDTO);
 }

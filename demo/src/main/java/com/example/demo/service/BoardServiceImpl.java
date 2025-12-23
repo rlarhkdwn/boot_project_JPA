@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.BoardDTO;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -10,8 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class BoardServiceImpl implements BoardService{
         // save() : 저장
         // 저장 객체는 Entitiy(board)
         // DTO => Entity 변환
-        Board board = convertDtoToEntity(boardDTO);
+        Board board = convertDTOToEntity(boardDTO);
         return boardRepository.save(board).getBno();
     }
 
@@ -37,6 +39,76 @@ public class BoardServiceImpl implements BoardService{
         Page<BoardDTO> boardDTOPage = pageList.map(this::convertEntityToDTO);
         return boardDTOPage;
     }
+
+    @Override
+    public BoardDTO getDetail(long bno) {
+        // findOne() : 기본키를 이용하여 원하는 객체 검색
+        // findBy() : 원하는 칼럼명을 이용하여 검색
+        // findById() = findOne()
+        // Optional<T> : NullPointException이 발생하지 않도록 도와줌
+        // Optional.isEmpty() : null 일 경우 true / false
+        // Optional.isPresent() : 값이 있는지를 확인 true / false
+        // Optional.get() : 객체 가져오기
+        Optional<Board> optionalBoard = boardRepository.findById(bno);
+        if (optionalBoard.isPresent()){
+            Board board = optionalBoard.get();
+            // readCount update
+            boardReadCountUpdate(board, 1);
+
+            BoardDTO boardDTO = convertEntityToDTO(board);
+            return boardDTO;
+        }
+        return null;
+    }
+
+    // save() => id가 없으면 insert / id가 있으면 update
+    // EntityNotFoundException => where 값이 존재하지 않을 경우 발생
+    // 정보 유실 가능성이 커짐
+    // dirty checking 미작동 가능성이 커짐
+    // 변동감지(dirty checking)
+    // findById(bno) 를 통해 먼저 조회 => 영속상태를 만든 후 수정 => save()
+    // @Transactional => dirty checking만으로 업데이트 가능 / save() 없이도 업데이트 가능
+    // 엔티티가 영속성 컨텍스트에 올라가 있는 상태를 영속상태라고 함
+    // 영속상태일때 해당 객체의 필드가 변경되면 트랜젝션이 종료되기 전에 JPA가 변경한 부분만 자동 감지하여 update 쿼리를 실행
+    // save()를 호출하지아 않아도 수정된 필드를 DB에 자동 반영
+    @Transactional
+    @Override
+    public Long modify(BoardDTO boardDTO) {
+        // Optional.orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글"))
+        Board board = boardRepository.findById(boardDTO.getBno())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글"));
+        board.setTitle(boardDTO.getTitle());
+        board.setContent(boardDTO.getContent());
+        boardReadCountUpdate(board, -1);
+        return board.getBno();
+    }
+
+    @Override
+    public void delete(BoardDTO boardDTO) {
+        boardRepository.deleteById(boardDTO.getBno());
+    }
+
+    private void boardReadCountUpdate(Board board, int i){
+        board.setReadCount(board.getReadCount()+i);
+        boardRepository.save(board);
+    }
+
+
+//    @Override
+//    public Long modify(BoardDTO boardDTO) {
+//        // update 기능은 없음
+//        // findById 객체를 가져와서 => 내 객체에서 변경값만 수정 => save()
+//        Optional<Board> optionalBoard = boardRepository.findById(boardDTO.getBno());
+//        if (optionalBoard.isPresent()) {
+//            Board board = optionalBoard.get();
+//            board.setTitle(boardDTO.getTitle());
+//            board.setContent(boardDTO.getContent());
+//            boardReadCountUpdate(board, -1);
+//            boardRepository.save(board);
+//            return board.getBno();
+//        }
+//        return 0L;
+//    }
 
 //    @Override
 //    public List<BoardDTO> getList() {
