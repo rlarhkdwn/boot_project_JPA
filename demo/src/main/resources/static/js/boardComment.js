@@ -30,14 +30,17 @@ document.getElementById('cmtAddBtn').addEventListener('click', ()=>{
 })
 
 // 화면에 출력하는 함수
-function spreadCommentList(bno){
-    commentListFromServer(bno).then(result =>{
+function spreadCommentList(bno, page=1){
+    commentListFromServer(bno, page).then(result =>{
         console.log(result);
         const ul = document.getElementById('cmtListArea');
-        if (result.length > 0){
+        if (result.list.length > 0){
             // 댓글이 있는 경우
+            if (page == 1) {
+                ul.innerHTML = ``; // 1page 만 값 비우기
+            }
             let li = ``;
-            for (let comment of result) {
+            for (let comment of result.list) {
                 li += `<li class="list-group-item" data-cno=${comment.cno}>`;
                     li += `<div class="ms-2 me-auto">`;
                         li += `<div class="fw-bold">${comment.writer}</div>`;
@@ -48,7 +51,21 @@ function spreadCommentList(bno){
                     li += `<button type="button" class="btn btn-sm btn-outline-danger del">x</button>`;
                 li += `</li>`;
             }
-            ul.innerHTML = li;
+            ul.innerHTML += li;
+
+            // page 변경
+            const moreBtn = document.getElementById('moreBtn');
+
+            // 아직 리스트가 더 있다면 버튼 표시
+            // result => list + pageHandler
+            // result => pageNo / totalPage
+            if (result.pageNo < result.totalPage) {
+                moreBtn.style.visibility = "visible"; // 버튼 표시
+                moreBtn.dataset.page = page + 1;
+            } else {
+                moreBtn.style.visibility = "hidden"; // 버튼 숨김
+            }
+
         } else {
             // 댓글이 없을 경우
             ul.innerHTML = `<li class="list-group-item">Comment List Empty</li>`
@@ -81,7 +98,8 @@ document.addEventListener('click', (e) => {
 
     // 더보기 버튼
     if (e.target.id == 'moreBtn') {
-
+        // 남아있는 게시글 5개 더 출력 => 출력함수 호출
+        spreadCommentList(bnoValue, parseInt(e.target.dataset.page));
     }
 
     // 수정 버튼
@@ -104,12 +122,34 @@ document.addEventListener('click', (e) => {
 
     // 삭제 버튼
     if (e.target.classList.contains('del')) {
-
+        let li = e.target.closest('li');
+        let cno = li.dataset.cno;
+        deleteCommentToServer(cno).then(result => {
+            console.log(result);
+            // 댓글 갱신
+            spreadCommentList(bnoValue);
+        });
     }
 })
 
 
 // 비동기 데이터 함수
+// comment delete
+async function deleteCommentToServer(cno){
+    try {
+        const url = "/comment/delete/" + cno;
+        const config = {
+            method: 'delete'
+        }
+        const resp = await fetch(url, config);
+        const result = await resp.json();
+        return result;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 // comment modify
 async function updateCommentToServer(modData){
     try {
@@ -131,9 +171,9 @@ async function updateCommentToServer(modData){
 }
 
 // list 호출
-async function commentListFromServer(bno){
+async function commentListFromServer(bno, page){
     try{
-        const resp = await fetch("/comment/list/" + bno);
+        const resp = await fetch("/comment/list/" + bno + "/" + page);
         const result = await resp.json();
         return result;
     } catch (error) {

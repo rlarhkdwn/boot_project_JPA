@@ -4,87 +4,106 @@
 	  layout:decorate="~{layout/layout}">
 <!--/*layout:decorate="~{붙일 레이아웃 경로}" : 내 조각이 붙여질 위치>*/-->
 
-<div layout:fragment="content">
-	<div class="container-sm">
-		<form action="/board/modify" method="post" id="modForm">
-			<h3>[ no.[[${board.bno}]] ] detail page</h3>
+<div layout:fragment="content" class="container-sm" th:with="board = ${boardFileDTO.boardDTO}">
+	<form action="/board/modify" method="post" id="modForm">
+		<h3>[ no.[[${board.bno}]] ] detail page</h3>
 
-			<input type="hidden" name="bno" th:value="${board.bno}">
-			<div class="mb-3">
-				<label for="t" class="form-label">Title</label>
-				<input type="text" name="title" th:value="${board.title}" class="form-control" id="t" readonly>
-			</div>
-			<div class="mb-3">
-				<label for="w" class="form-label">Writer</label>
-				<input type="text" name="writer" th:value="${board.writer}" class="form-control" id="w" readonly>
-			</div>
-			<div class="mb-3">
-				<label for="r" class="form-label">RegDate</label>
-				<input type="text" name="regDate" th:value="${board.regDate}" class="form-control" id="r" readonly>
-			</div>
-			<div class="mb-3">
-				<label for="c" class="form-label">Content</label>
-				<textarea class="form-control" name="content" id="c" rows="5" cols="30" readonly>[[${board.content}]]</textarea>
-			</div>
-		</form>
-		<button type="button" class="btn btn-primary" id="listBtn"><a href="/board/list" class="text-decoration-none text-dark">list</a></button>
-		<button type="button" class="btn btn-warning text-dark" id="modBtn">update</button>
-		<button type="button" class="btn btn-danger" id="delBtn"><a th:href="@{/board/delete(bno=${board.bno})}" class="text-decoration-none text-dark">delete</a></button>
+		<input type="hidden" name="bno" th:value="${board.bno}">
+		<div class="mb-3">
+			<label for="t" class="form-label">Title</label>
+			<input type="text" name="title" th:value="${board.title}" class="form-control" id="t" readonly>
+		</div>
+		<div class="mb-3">
+			<label for="w" class="form-label">Writer</label>
+			<input type="text" name="writer" th:value="${board.writer}" class="form-control" id="w" readonly>
+		</div>
+		<div class="mb-3">
+			<label for="r" class="form-label">RegDate</label>
+			<input type="text" name="regDate" th:value="${board.regDate}" class="form-control" id="r" readonly>
+		</div>
+		<div class="mb-3">
+			<label for="c" class="form-label">Content</label>
+			<textarea class="form-control" name="content" id="c" rows="5" cols="30" readonly>[[${board.content}]]</textarea>
+		</div>
 
-		<div>
-			<!--comment post-->
-			<div class="input-group my-3">
-				<span class="input-group-text" id="cmtWriter">Tester</span>
-				<input type="text" id="cmtText" class="form-control" placeholder="Add Comment..." aria-label="Username" aria-describedby="basic-addon1">
-				<button type="button" id="cmtAddBtn" class="btn btn-primary">post</button>
-			</div>
-
-			<!--comment spread-->
-			<ul class="list-group list-group-flush" id="cmtListArea">
-				<li class="list-group-item">
-					<div class="ms-2 me-auto">
-						<div class="fw-bold">writer</div>
-						content
+		<!--file print-->
+		<div class="mb-3">
+			<ul class="list-group">
+				<li class="list-group-item" th:each="fileDTO:${boardFileDTO.fileList}">
+					<div th:if="${fileDTO.fileType eq 1}" class="mb-3">
+						<img th:src="@{|/upload/${fileDTO.saveDir}/${fileDTO.uuid}_th_${fileDTO.fileName}|}">
+						<span>[[${fileDTO.fileName}]]</span>
+						<span class="badge text-bg-warning">[[${fileDTO.regDate}]] / [[${fileDTO.fileSize}]]Bytes</span>
 					</div>
-					<span class="badge text-bg-primary">reg_date</span>
+					<div th:unless="${fileDTO.fileType eq 1}" class="mb-3">
+						<a th:download="${fileDTO.fileName}" th:href="@{|/upload/${fileDTO.saveDir}/${fileDTO.uuid}_${fileDTO.fileName}|}">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-text" viewBox="0 0 16 16">
+								<path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z"/>
+								<path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1"/>
+							</svg>
+							<span>[[${fileDTO.fileName}]]</span>
+							<span class="badge text-bg-warning">[[${fileDTO.regDate}]] / [[${fileDTO.fileSize}]]Bytes</span>
+						</a>
+					</div>
 				</li>
 			</ul>
+		</div>
 
-			<!--moreBtn-->
-			<div class="input-group my-3">
-				<button type="button" class="btn btn-info" id="moreBtn">more</button>
-			</div>
+	</form>
+	<button type="button" class="btn btn-primary" id="listBtn"><a href="/board/list" class="text-decoration-none text-dark">list</a></button>
+	<button type="button" class="btn btn-warning text-dark" id="modBtn">update</button>
+	<button type="button" class="btn btn-danger" id="delBtn"><a th:href="@{/board/delete(bno=${board.bno})}" class="text-decoration-none text-dark">delete</a></button>
 
-			<!--modal-->
-			<div class="modal" tabindex="-1" id="commentModal">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="cmtWriterMod">Tester</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body">
-							<input type="text" class="form-control" id="cmtTextMod">
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-primary" id="cmtModBtn">changes</button>
-						</div>
+	<div id="comment">
+		<!--comment post-->
+		<div class="input-group my-3">
+			<span class="input-group-text" id="cmtWriter">Tester</span>
+			<input type="text" id="cmtText" class="form-control" placeholder="Add Comment..." aria-label="Username" aria-describedby="basic-addon1">
+			<button type="button" id="cmtAddBtn" class="btn btn-primary">post</button>
+		</div>
+
+		<!--comment spread-->
+		<ul class="list-group list-group-flush" id="cmtListArea">
+			<li class="list-group-item">
+				<div class="ms-2 me-auto">
+					<div class="fw-bold">writer</div>
+					content
+				</div>
+				<span class="badge text-bg-primary">reg_date</span>
+			</li>
+		</ul>
+
+		<!--moreBtn-->
+		<div class="input-group my-3">
+			<button type="button" class="btn btn-info" id="moreBtn" data-page="1" style="visibility: hidden">more</button>
+		</div>
+
+		<!--modal-->
+		<div class="modal" tabindex="-1" id="commentModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="cmtWriterMod">Tester</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<input type="text" class="form-control" id="cmtTextMod">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" id="cmtModBtn">changes</button>
 					</div>
 				</div>
 			</div>
-
-
-
 		</div>
-
-		<script th:inline="javascript">
-			const bnoValue = [[${board.bno}]];
-		</script>
-		<script src="/js/boardComment.js"></script>
-		<script src="/js/boardModify.js"></script>
-		<script>
-            spreadCommentList(bnoValue);
-		</script>
 	</div>
+
+	<script th:inline="javascript">
+		const bnoValue = [[${board.bno}]];
+	</script>
+	<script src="/js/boardComment.js"></script>
+	<script src="/js/boardModify.js"></script>
+	<script>
+		spreadCommentList(bnoValue);
+	</script>
 </div>

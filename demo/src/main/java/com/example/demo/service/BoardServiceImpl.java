@@ -1,8 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.BoardDTO;
+import com.example.demo.dto.BoardFileDTO;
+import com.example.demo.dto.FileDTO;
 import com.example.demo.entity.Board;
+import com.example.demo.entity.File;
 import com.example.demo.repository.BoardRepository;
+import com.example.demo.repository.FileRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -20,6 +25,22 @@ import java.util.Optional;
 @Service
 public class BoardServiceImpl implements BoardService{
     private final BoardRepository boardRepository;
+    private final FileRepository fileRepository;
+
+    @Transactional
+    @Override
+    public Long insert(BoardFileDTO boardFileDTO) {
+        Board board = convertDTOToEntity(boardFileDTO.getBoardDTO());
+        Long bno = boardRepository.save(board).getBno();
+        List<FileDTO> fileList = boardFileDTO.getFileList();
+        if (bno > 0 && fileList != null){
+            for (FileDTO fileDTO : fileList){
+                fileDTO.setBno(bno);
+                bno = fileRepository.save(convertDTOToEntity(fileDTO)).getBno();
+            }
+        }
+        return bno;
+    }
 
     @Override
     public Long insert(BoardDTO boardDTO) {
@@ -40,26 +61,45 @@ public class BoardServiceImpl implements BoardService{
         return boardDTOPage;
     }
 
+    @Transactional
     @Override
-    public BoardDTO getDetail(long bno) {
-        // findOne() : 기본키를 이용하여 원하는 객체 검색
-        // findBy() : 원하는 칼럼명을 이용하여 검색
-        // findById() = findOne()
-        // Optional<T> : NullPointException이 발생하지 않도록 도와줌
-        // Optional.isEmpty() : null 일 경우 true / false
-        // Optional.isPresent() : 값이 있는지를 확인 true / false
-        // Optional.get() : 객체 가져오기
-        Optional<Board> optionalBoard = boardRepository.findById(bno);
-        if (optionalBoard.isPresent()){
-            Board board = optionalBoard.get();
-            // readCount update
-            boardReadCountUpdate(board, 1);
+    public BoardFileDTO getDetail(long bno) {
+        Optional<Board> optional = boardRepository.findById(bno);
+        if(optional.isPresent()) {
+            Board board = optional.get();
+            board.setReadCount(board.getReadCount() + 1);
 
             BoardDTO boardDTO = convertEntityToDTO(board);
-            return boardDTO;
+
+            // file 리스트 가져오기
+            List<File> fileList = fileRepository.findByBno(bno);
+            List<FileDTO> fileDTOList = fileList.stream().map(this::convertEntityToDTO).toList();
+            BoardFileDTO boardFileDTO = new BoardFileDTO(boardDTO, fileDTOList);
+            return boardFileDTO;
         }
         return null;
     }
+
+//    @Override
+//    public BoardDTO getDetail(long bno) {
+//        // findOne() : 기본키를 이용하여 원하는 객체 검색
+//        // findBy() : 원하는 칼럼명을 이용하여 검색
+//        // findById() = findOne()
+//        // Optional<T> : NullPointException이 발생하지 않도록 도와줌
+//        // Optional.isEmpty() : null 일 경우 true / false
+//        // Optional.isPresent() : 값이 있는지를 확인 true / false
+//        // Optional.get() : 객체 가져오기
+//        Optional<Board> optionalBoard = boardRepository.findById(bno);
+//        if (optionalBoard.isPresent()){
+//            Board board = optionalBoard.get();
+//            // readCount update
+//            boardReadCountUpdate(board, 1);
+//
+//            BoardDTO boardDTO = convertEntityToDTO(board);
+//            return boardDTO;
+//        }
+//        return null;
+//    }
 
     // save() => id가 없으면 insert / id가 있으면 update
     // EntityNotFoundException => where 값이 존재하지 않을 경우 발생

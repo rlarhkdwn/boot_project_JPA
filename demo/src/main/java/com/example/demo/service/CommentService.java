@@ -2,8 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.CommentDTO;
 import com.example.demo.entity.Comment;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface CommentService {
 
@@ -32,7 +31,11 @@ public interface CommentService {
 
     long post(CommentDTO commentDTO);
 
-    List<CommentDTO> getList(Long bno);
+    // List<CommentDTO> getList(Long bno);
 
     long modify(CommentDTO commentDTO);
+
+    void delete(long cno);
+
+    Page<CommentDTO> getList(Long bno, int page);
 }
