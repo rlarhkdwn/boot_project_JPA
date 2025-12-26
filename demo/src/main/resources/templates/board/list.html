@@ -36,7 +36,7 @@
 			<thead>
 			<tr>
 				<th scope="col">bno</th>
-				<th scope="col">title</th>
+				<th scope="col" colspan="2">title</th>
 				<th scope="col">writer</th>
 				<th scope="col">regDate</th>
 				<th scope="col">readCount</th>
@@ -46,6 +46,10 @@
 			<tr th:each="board:${ph.list}">
 				<th scope="row">[[${board.bno}]]</th>
 				<td><a th:href="@{/board/detail(bno=${board.bno})}">[[${board.title}]]</a></td>
+				<td>
+					<span class="badge rounded-pill text-bg-success">cmt:[[${board.cmtQty}]]</span>
+					<span class="badge rounded-pill text-bg-warning">file:[[${board.fileQty}]]</span>
+				</td>
 				<td>[[${board.writer}]]</td>
 				<td>[[${#strings.substring(board.regDate, 0, 10)}]]</td>
 				<td>[[${board.readCount}]]</td>

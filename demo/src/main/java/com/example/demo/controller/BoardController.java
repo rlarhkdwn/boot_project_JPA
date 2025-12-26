@@ -9,12 +9,10 @@ import com.example.demo.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -48,7 +46,7 @@ public class BoardController {
 
 //        Long bno = boardService.insert(boardDTO);
 //        log.info(">>> insert id {}", bno);
-        return "redirect:/";
+        return "redirect:/board/list";
     }
 
 //    @GetMapping("list")
@@ -79,8 +77,16 @@ public class BoardController {
     }
 
     @PostMapping("modify")
-    public String modify(BoardDTO boardDTO, RedirectAttributes redirectAttributes){
-        Long bno = boardService.modify(boardDTO);
+    public String modify(BoardDTO boardDTO, @RequestParam(name = "files", required = false) MultipartFile[] files, RedirectAttributes redirectAttributes){
+        List<FileDTO> fileList = null;
+        if (files != null && files[0].getSize() > 0) {
+            // 핸들러 호출
+            fileList = fileHandler.uploadFile(files);
+        }
+
+        BoardFileDTO boardFileDTO = new BoardFileDTO(boardDTO, fileList);
+        Long bno = boardService.modify(boardFileDTO);
+
         redirectAttributes.addAttribute("bno", bno);
         return "redirect:/board/detail";
     }
@@ -89,5 +95,15 @@ public class BoardController {
     public String delete(BoardDTO boardDTO){
         boardService.delete(boardDTO);
         return "redirect:/board/list";
+    }
+
+    @DeleteMapping("deleteFile/{uuid}")
+    public ResponseEntity<String> deleteFile(@PathVariable("uuid") String uuid){
+        FileDTO fileDTO = boardService.getFile(uuid);
+        long bno = boardService.deleteFile(uuid);
+        if (fileDTO != null){
+            fileHandler.removeFile(fileDTO);
+        }
+        return bno > 0 ? ResponseEntity.ok("1") : ResponseEntity.internalServerError().build();
     }
 }

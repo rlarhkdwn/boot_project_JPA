@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CommentDTO;
+import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
+import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +22,14 @@ import java.util.List;
 @Service
 public class CommentServiceImpl implements CommentService{
     private final CommentRepository commentRepository;
+    private final BoardRepository boardRepository;
 
+    @Transactional
     @Override
     public long post(CommentDTO commentDTO) {
+        Board board = boardRepository.findById(commentDTO.getBno()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글"));
+        board.setCmtQty(board.getCmtQty() + 1);
+
         Comment comment = convertDTOToEntity(commentDTO);
         return commentRepository.save(comment).getCno();
     }
@@ -44,8 +51,15 @@ public class CommentServiceImpl implements CommentService{
         return comment.getCno();
     }
 
+    @Transactional
     @Override
     public void delete(long cno) {
+        Comment comment = commentRepository.findById(cno)
+                        .orElseThrow(() -> new EntityNotFoundException());
+        Board board = boardRepository.findById(comment.getBno())
+                        .orElseThrow(() -> new EntityNotFoundException());
+
+        board.setCmtQty(board.getCmtQty() - 1);
         commentRepository.deleteById(cno);
     }
 

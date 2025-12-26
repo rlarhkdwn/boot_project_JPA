@@ -45,5 +45,6 @@ document.getElementById('file').addEventListener('change', (e)=>{
     if(isOk == 0){
         // 검증을 통과 못했다면
         document.getElementById('regBtn').disabled = true;
+        document.getElementById('')
     }
 })

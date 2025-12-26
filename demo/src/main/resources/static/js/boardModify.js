@@ -23,7 +23,35 @@ document.getElementById('modBtn').addEventListener('click', ()=>{
 
     // 댓글 지우기
     document.getElementById('comment').remove();
+
+    // 파일 입력버튼 추가
+    document.getElementById('addFile').style.display = 'block';
+
+    // 파일 제거 버튼 표시
+    let fileX = document.querySelectorAll('.file-x');
+    for (let file of fileX){
+        file.style.visibility = 'visible';
+        file.addEventListener('click', (e)=>{
+            let uuid = e.target.dataset.uuid;
+            console.log(uuid);
+            deleteFile(uuid).then(result =>{
+                if (result == "1") {
+                    // 삭제 성공
+                    e.target.closest('li').remove();
+                }
+            });
+        })
+    }
 })
+
+async function deleteFile(uuid){
+    const url = "/board/deleteFile/" + uuid;
+    const config = {
+        method: 'delete'
+    }
+    const res = await fetch(url, config);
+    return await res.text();
+}
 
 // list 버튼 클릭하면 /board/list로 이동
 // document.getElementById('listBtn').addEventListener('click', ()=>{

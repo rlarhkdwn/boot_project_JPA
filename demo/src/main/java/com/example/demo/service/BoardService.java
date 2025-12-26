@@ -7,6 +7,9 @@ import com.example.demo.entity.Board;
 import com.example.demo.entity.File;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+import java.util.Optional;
+
 
 public interface BoardService {
     // 추상메서드만 가능한 인터페이스
@@ -79,9 +82,15 @@ public interface BoardService {
 
     BoardFileDTO getDetail(long bno);
 
-    Long modify(BoardDTO boardDTO);
+    Long modify(BoardFileDTO boardFileDTO);
 
     void delete(BoardDTO boardDTO);
 
     Long insert(BoardFileDTO boardFileDTO);
+
+    FileDTO getFile(String uuid);
+
+    long deleteFile(String uuid);
+
+    List<FileDTO> getTodayFileList(String today);
 }

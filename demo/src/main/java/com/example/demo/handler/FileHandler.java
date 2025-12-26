@@ -18,6 +18,36 @@ public class FileHandler {
     // 저장될 파일 데이터 + 직접 폴더에 파일을 저장
     private final String UP_DIP = "D:\\web_0826_kkj\\_myProject\\_java\\_fileUpload";
 
+    public void removeFile(FileDTO fileDTO) {
+        String today = fileDTO.getSaveDir();
+
+        File folders = new File(UP_DIP, today);
+
+        // file : name, size, type
+        String originalFileName = fileDTO.getFileName();
+
+        // uuid
+        String uuidString = fileDTO.getUuid();
+
+        // 삭제
+        String fileName = uuidString + "_" + originalFileName;
+        String fileThName = uuidString + "_th_" + originalFileName;
+
+        // D:~/2025/12/24/uuid_fileName
+        File removeFile = new File(folders, fileName);
+        File removeThFile = new File(folders, fileThName);
+        try {
+            removeFile.delete();
+            // 그림파일만 썸네일 저장
+            if (fileDTO.getFileType() == 1) {
+                removeThFile.delete();
+            }
+        } catch (Exception e) {
+            log.info(">>> file save Error");
+            e.printStackTrace();
+        }
+    }
+
     public List<FileDTO> uploadFile(MultipartFile[] files){
         List<FileDTO> fileList = new ArrayList<>();
 

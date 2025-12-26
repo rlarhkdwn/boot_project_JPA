@@ -31,8 +31,14 @@ public class BoardServiceImpl implements BoardService{
     @Override
     public Long insert(BoardFileDTO boardFileDTO) {
         Board board = convertDTOToEntity(boardFileDTO.getBoardDTO());
-        Long bno = boardRepository.save(board).getBno();
         List<FileDTO> fileList = boardFileDTO.getFileList();
+
+        if (fileList != null) {
+            board.setFileQty(fileList.size());
+        }
+
+        Long bno = boardRepository.save(board).getBno();
+
         if (bno > 0 && fileList != null){
             for (FileDTO fileDTO : fileList){
                 fileDTO.setBno(bno);
@@ -40,6 +46,39 @@ public class BoardServiceImpl implements BoardService{
             }
         }
         return bno;
+    }
+
+    @Override
+    public FileDTO getFile(String uuid) {
+        Optional<File> optionalFile = fileRepository.findById(uuid);
+        if(optionalFile.isPresent()) {
+            File file = optionalFile.get();
+            return convertEntityToDTO(file);
+        }
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public long deleteFile(String uuid) {
+        Optional<File> optionalFile = fileRepository.findById(uuid);
+        if(optionalFile.isPresent()) {
+            long bno = optionalFile.get().getBno();
+            fileRepository.deleteById(uuid);
+            Optional<Board> optionalBoard = boardRepository.findById(bno);
+            if (optionalBoard.isPresent()) {
+                optionalBoard.get().setFileQty(optionalBoard.get().getFileQty() - 1);
+            }
+            return bno;
+        }
+        return 0;
+    }
+
+    @Override
+    public List<FileDTO> getTodayFileList(String today) {
+        List<File> FileList = fileRepository.findBySaveDir(today).orElseThrow(() -> new EntityNotFoundException());
+        log.info(">>> FileList {}", FileList);
+        return FileList.stream().map(this::convertEntityToDTO).toList();
     }
 
     @Override
@@ -113,13 +152,23 @@ public class BoardServiceImpl implements BoardService{
     // save()를 호출하지아 않아도 수정된 필드를 DB에 자동 반영
     @Transactional
     @Override
-    public Long modify(BoardDTO boardDTO) {
+    public Long modify(BoardFileDTO boardFileDTO) {
         // Optional.orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글"))
-        Board board = boardRepository.findById(boardDTO.getBno())
+        Board board = boardRepository.findById(boardFileDTO.getBoardDTO().getBno())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글"));
-        board.setTitle(boardDTO.getTitle());
-        board.setContent(boardDTO.getContent());
+        board.setTitle(boardFileDTO.getBoardDTO().getTitle());
+        board.setContent(boardFileDTO.getBoardDTO().getContent());
         boardReadCountUpdate(board, -1);
+
+        long bno = board.getBno();
+        List<FileDTO> fileList = boardFileDTO.getFileList();
+        if (fileList != null) {
+            board.setFileQty(board.getFileQty() + fileList.size());
+            for (FileDTO fileDTO : fileList) {
+                fileDTO.setBno(bno);
+                fileRepository.save(convertDTOToEntity(fileDTO)).getBno();
+            }
+        }
         return board.getBno();
     }
 
