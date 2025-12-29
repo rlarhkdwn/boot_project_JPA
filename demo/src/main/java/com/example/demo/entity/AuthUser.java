@@ -1,0 +1,31 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Table(name = "auth_user")
+@Entity
+@Setter
+@Getter
+@ToString(exclude = "user") // 양방향 참조시 순환 참조 방지
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class AuthUser{
+    // M : 1 (다대일 매핑)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // String email 대신 User 객체를 참조
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "email")
+    private User user; // DB의 FK 칼럼명
+
+    @Enumerated(EnumType.STRING)
+    private AuthRole auth; // Enum의 이름을 문자열로 저장
+
+
+}

@@ -8,30 +8,29 @@
 	<div class="container-sm">
 		<h3>list page</h3>
 		<!--검색-->
-		<!--/*<div class="container-fluid m-2">
+		<div class="container-fluid m-2">
 			<form class="d-flex" role="search" action="/board/list" method="get">
 				<select class="form-select" name="type" aria-label="Default select example">
-					<option th:selected="${ph.pgvo.type eq null}">Choose...</option>
-					<option value="t" th:selected="${ph.pgvo.type eq 't'}">title</option>
-					<option value="w" th:selected="${ph.pgvo.type eq 'w'}">writer</option>
-					<option value="c" th:selected="${ph.pgvo.type eq 'c'}">content</option>
-					<option value="tc" th:selected="${ph.pgvo.type eq 'tc'}">title + content</option>
-					<option value="wc" th:selected="${ph.pgvo.type eq 'wc'}">writer + content</option>
-					<option value="tw" th:selected="${ph.pgvo.type eq 'tw'}">title + writer</option>
-					<option value="twc" th:selected="${ph.pgvo.type eq 'twc'}">all</option>
+					<option th:selected="${ph.type eq null}">Choose...</option>
+					<option value="t" th:selected="${ph.type eq 't'}">title</option>
+					<option value="w" th:selected="${ph.type eq 'w'}">writer</option>
+					<option value="c" th:selected="${ph.type eq 'c'}">content</option>
+					<option value="tc" th:selected="${ph.type eq 'tc'}">title + content</option>
+					<option value="wc" th:selected="${ph.type eq 'wc'}">writer + content</option>
+					<option value="tw" th:selected="${ph.type eq 'tw'}">title + writer</option>
+					<option value="twc" th:selected="${ph.type eq 'twc'}">all</option>
 				</select>
-				<input class="form-control me-2" type="search" name="keyword" th:value="${ph.pgvo.keyword}" placeholder="Search" aria-label="Search" />
+				<input class="form-control me-2" type="search" name="keyword" th:value="${ph.keyword}" placeholder="Search" aria-label="Search" />
 				<input type="hidden" name="pageNo" value="1">
-				<input type="hidden" name="qty" th:value="${ph.pgvo.qty}">
 				<button type="submit" class="btn btn-success position-relative">
 					Search
 					<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
-						[[${ph.totalCount}]]
+						[[${ph.totalElement}]]
                         <span class="visually-hidden">unread messages</span>
                     </span>
 				</button>
 			</form>
-		</div>*/-->
+		</div>
 		<table class="table">
 			<thead>
 			<tr>
@@ -62,19 +61,19 @@
 		<nav aria-label="Page navigation example">
 			<ul class="pagination justify-content-center">
 				<li class="page-item" th:classappend="${ph.prev ? '' : 'disabled'}">
-					<a class="page-link" th:href="@{/board/list(pageNo=${ph.startPage-1})}" aria-label="Previous">
+					<a class="page-link" th:href="@{/board/list(pageNo=${ph.startPage}-1, type=${ph.type}, keyword=${ph.keyword})}" aria-label="Previous">
 						<span aria-hidden="true">&laquo;</span>
 					</a>
 				</li>
 
 				<th:block th:each="i:${#numbers.sequence(ph.startPage, ph.endPage)}">
 					<li class="page-item">
-						<a class="page-link" th:href="@{/board/list(pageNo=${i})}">[[${i}]]</a>
+						<a class="page-link" th:href="@{/board/list(pageNo=${i}, type=${ph.type}, keyword=${ph.keyword})}">[[${i}]]</a>
 					</li>
 				</th:block>
 
 				<li class="page-item" th:classappend="${ph.next ? '' : 'disabled'}">
-					<a class="page-link" th:href="@{/board/list(pageNo=${ph.endPage+1})}" aria-label="Next">
+					<a class="page-link" th:href="@{/board/list(pageNo=${ph.endPage}+1, type=${ph.type}, keyword=${ph.keyword})}" aria-label="Next">
 						<span aria-hidden="true">&raquo;</span>
 					</a>
 				</li>

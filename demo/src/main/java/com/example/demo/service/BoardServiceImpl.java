@@ -90,12 +90,22 @@ public class BoardServiceImpl implements BoardService{
         return boardRepository.save(board).getBno();
     }
 
+//    @Override
+//    public Page<BoardDTO> getList(int pageNo) {
+//        // limit 시작번지, 개수 => 번지는 0부터 시작
+//        // pageNo = 1 => limit 0, 10
+//        Pageable pageable = PageRequest.of(pageNo-1, 10, Sort.by("bno").descending());
+//        Page<Board> pageList = boardRepository.findAll(pageable);
+//        Page<BoardDTO> boardDTOPage = pageList.map(this::convertEntityToDTO);
+//        return boardDTOPage;
+//    }
+
     @Override
-    public Page<BoardDTO> getList(int pageNo) {
-        // limit 시작번지, 개수 => 번지는 0부터 시작
-        // pageNo = 1 => limit 0, 10
+    public Page<BoardDTO> getList(int pageNo, String type, String keyword) {
         Pageable pageable = PageRequest.of(pageNo-1, 10, Sort.by("bno").descending());
-        Page<Board> pageList = boardRepository.findAll(pageable);
+        // type 과 keyword에 일치하는 리스트를 리턴
+        Page<Board> pageList = boardRepository.searchBoard(type, keyword, pageable);
+
         Page<BoardDTO> boardDTOPage = pageList.map(this::convertEntityToDTO);
         return boardDTOPage;
     }

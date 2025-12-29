@@ -78,7 +78,8 @@ public interface BoardService {
 
     Long insert(BoardDTO boardDTO);
 
-    Page<BoardDTO> getList(int pageNo);
+    // Page<BoardDTO> getList(int pageNo);
+    Page<BoardDTO> getList(int pageNo, String type, String keyword);
 
     BoardFileDTO getDetail(long bno);
 

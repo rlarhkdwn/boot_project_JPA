@@ -1,0 +1,28 @@
+package com.example.demo.service;
+
+import com.example.demo.dto.UserDTO;
+import com.example.demo.entity.AuthRole;
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@RequiredArgsConstructor
+@Slf4j
+@Service
+public class UserServiceImpl implements UserService{
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    @Override
+    public String register(UserDTO userDTO) {
+        userDTO.setPwd(passwordEncoder.encode(userDTO.getPwd()));
+        User user = convertDTOToEntity(userDTO);
+        user.addAuth(AuthRole.USER);
+        return userRepository.save(user).getEmail();
+    }
+}

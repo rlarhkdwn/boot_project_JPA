@@ -56,17 +56,27 @@ public class BoardController {
 //        model.addAttribute("list", list);
 //    }
 
-    @GetMapping("list")
-    public void list(Model model, @RequestParam(name = "pageNo", defaultValue = "1", required = false) int pageNo){
-        // select * from board order by bno desc limit 0, 10;
-        Page<BoardDTO> list = boardService.getList(pageNo);
-        log.info(">>> totalCount {}", list.getTotalElements()); // 전체 게시글 수
-        log.info(">>> totalCount {}", list.getTotalPages()); // 전체 페이지 수
-        log.info(">>> totalCount {}", list.getPageable());
-        log.info(">>> totalCount {}", list.hasNext()); // 다음 여부
-        log.info(">>> totalCount {}", list.hasPrevious()); // 이전 여부
+//    @GetMapping("list")
+//    public void list(Model model, @RequestParam(name = "pageNo", defaultValue = "1", required = false) int pageNo){
+//        // select * from board order by bno desc limit 0, 10;
+//        Page<BoardDTO> list = boardService.getList(pageNo);
+//        log.info(">>> totalCount {}", list.getTotalElements()); // 전체 게시글 수
+//        log.info(">>> totalCount {}", list.getTotalPages()); // 전체 페이지 수
+//        log.info(">>> totalCount {}", list.getPageable());
+//        log.info(">>> totalCount {}", list.hasNext()); // 다음 여부
+//        log.info(">>> totalCount {}", list.hasPrevious()); // 이전 여부
+//
+//        PageHandler<BoardDTO> pageHandler = new PageHandler<>(list, pageNo);
+//        model.addAttribute("ph", pageHandler);
+//    }
 
-        PageHandler<BoardDTO> pageHandler = new PageHandler<>(list, pageNo);
+    @GetMapping("list")
+    public void list(Model model, @RequestParam(name = "pageNo", defaultValue = "1", required = false) int pageNo,
+                     @RequestParam(name = "type", required = false) String type,
+                     @RequestParam(name = "keyword", required = false) String keyword){
+        // page + search
+        Page<BoardDTO> list = boardService.getList(pageNo, type, keyword);
+        PageHandler<BoardDTO> pageHandler = new PageHandler<>(list, pageNo, type, keyword);
         model.addAttribute("ph", pageHandler);
     }
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content" class="container-md">
+	<h1>join page</h1>
+	<form action="/user/signup" method="POST">
+		<!-- csrf 토큰 추가 -->
+		<!--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">-->
+		<div class="mb-3">
+			<label for="e" class="form-label">Email</label>
+			<input type="text" class="form-control" id="e" name="email" placeholder="id@example.com">
+		</div>
+		<div id="emailValidResult"></div>
+		<div class="mb-3">
+			<label for="p" class="form-label">Password</label>
+			<input type="password" class="form-control" id="p" name="pwd" placeholder="영어, 숫자, 특수문자 1개 이상 포함하여 8~20자">
+		</div>
+		<div id="passwordValidResult"></div>
+		<button type="submit" class="btn btn-primary" id="submit">login</button>
+	</form>
+	<!--<script type="text/javascript" src="/js/userSignup.js"></script>-->
+</div>
