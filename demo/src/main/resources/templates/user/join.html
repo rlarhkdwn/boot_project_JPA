@@ -6,6 +6,8 @@
 <div layout:fragment="content" class="container-md">
 	<h1>join page</h1>
 	<form action="/user/join" method="POST">
+		<!--csrf 토큰 추가-->
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 		<!-- csrf 토큰 추가 -->
 		<!--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">-->
 		<div class="mb-3">

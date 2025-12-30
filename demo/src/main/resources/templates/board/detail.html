@@ -6,6 +6,8 @@
 
 <div layout:fragment="content" class="container-sm" th:with="board = ${boardFileDTO.boardDTO}">
 	<form action="/board/modify" method="post" id="modForm" enctype="multipart/form-data">
+		<!--csrf 토큰 추가-->
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 		<h3>[ no.[[${board.bno}]] ] detail page</h3>
 
 		<input type="hidden" name="bno" th:value="${board.bno}">

@@ -8,13 +8,15 @@
 	<div class="container-sm">
 		<h3>board register page</h3>
 		<form action="/board/register" method="post" enctype="multipart/form-data">
+			<!--csrf 토큰 추가-->
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 			<div class="mb-3">
 				<label for="t" class="form-label">Title</label>
 				<input type="text" name="title" class="form-control" id="t" placeholder="title...">
 			</div>
 			<div class="mb-3">
 				<label for="w" class="form-label">Writer</label>
-				<input type="text" name="writer" class="form-control" id="w" placeholder="writer...">
+				<input type="text" name="writer" th:value="${#authentication.name}" class="form-control" id="w" readonly>
 			</div>
 			<div class="mb-3">
 				<label for="c" class="form-label">Content</label>

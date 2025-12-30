@@ -47,7 +47,10 @@ document.getElementById('modBtn').addEventListener('click', ()=>{
 async function deleteFile(uuid){
     const url = "/board/deleteFile/" + uuid;
     const config = {
-        method: 'delete'
+        method: 'delete',
+        headers:{
+            [csrfHeader] : csrfToken
+        }
     }
     const res = await fetch(url, config);
     return await res.text();

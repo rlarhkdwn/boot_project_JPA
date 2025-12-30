@@ -6,6 +6,8 @@ import com.example.demo.entity.AuthRole;
 import com.example.demo.entity.AuthUser;
 import com.example.demo.entity.User;
 
+import java.util.List;
+
 public interface UserService {
     default User convertDTOToEntity(UserDTO userDTO){
         return User.builder()
@@ -44,4 +46,8 @@ public interface UserService {
     }
 
     String register(UserDTO userDTO);
+
+    void lastLoginUpdate(String name);
+
+    List<UserDTO> getList();
 }
