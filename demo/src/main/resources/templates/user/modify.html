@@ -7,9 +7,9 @@
 <div layout:fragment="content">
 	<div class="container-sm" th:with="user=${#authentication.getPrincipal().user}">
 		<h3>modify page</h3>
-		<form action="/user/modify" method="POST">
+		<form action="/user/modify" method="post">
 			<!-- csrf 토큰 추가 -->
-			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
 			<div class="card" style="width: 18rem;">
 				<img src="/image/돈까스.jpg" class="card-img-top" alt="...">
@@ -30,7 +30,7 @@
 						</th:block>
 					</p>
 
-					<button type="sumbit" class="btn btn-primary btn-sm">modify</button>
+					<button type="submit" class="btn btn-primary btn-sm">modify</button>
 					<a th:href="@{/user/delete(email=${user.email})}"><button type="button" class="btn btn-danger btn-sm">delete</button></a>
 				</div>
 			</div>

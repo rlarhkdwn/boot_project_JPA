@@ -3,8 +3,12 @@ package com.example.demo.controller;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,15 +45,37 @@ public class UserController {
     public String join(UserDTO userDTO){
         String email = userService.register(userDTO);
         log.info(">>> email {}", email);
-        return "index";
+        return "redirect:/";
     }
 
     @GetMapping("/modify")
     public void modify(){}
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public void list(Model model){
         List<UserDTO> userList = userService.getList();
         model.addAttribute("userList", userList);
+    }
+
+    @PostMapping("/modify")
+    public String modify(HttpServletRequest request, HttpServletResponse response,
+                         UserDTO userDTO, Model model){
+        userService.modify(userDTO);
+        logout(request, response);
+        return "redirect:/";
+    }
+
+    @GetMapping("/delete")
+    public String delete(HttpServletRequest request, HttpServletResponse response, @RequestParam("email") String email){
+        userService.delete(email);
+        logout(request, response);
+        return "redirect:/";
+    }
+
+    private void logout(HttpServletRequest request, HttpServletResponse response){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
     }
 }

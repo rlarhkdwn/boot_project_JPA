@@ -43,4 +43,19 @@ public class UserServiceImpl implements UserService{
         List<User> userList = userRepository.findAllWithAuthList();
         return userList.stream().map(this::convertEntityToDTO).toList();
     }
+
+    @Transactional
+    @Override
+    public void delete(String email) {
+        User user = userRepository.findById(email).orElseThrow(() -> new EntityNotFoundException());
+        userRepository.delete(user);
+    }
+
+    @Override
+    public void modify(UserDTO userDTO) {
+        userDTO.setPwd(passwordEncoder.encode(userDTO.getPwd()));
+        User user = convertDTOToEntity(userDTO);
+        user.addAuth(AuthRole.USER);
+        userRepository.save(user);
+    }
 }

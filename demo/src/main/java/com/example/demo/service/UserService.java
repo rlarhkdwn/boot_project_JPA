@@ -50,4 +50,8 @@ public interface UserService {
     void lastLoginUpdate(String name);
 
     List<UserDTO> getList();
+
+    void delete(String email);
+
+    void modify(UserDTO userDTO);
 }

@@ -1,5 +1,6 @@
 console.log("boardComment.js in");
 console.log(bnoValue);
+console.log(loginuser);
 
 const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
@@ -50,8 +51,10 @@ function spreadCommentList(bno, page=1){
                         li += `${comment.content}`;
                     li += `</div>`;
                     li += `<span class="badge text-bg-primary">${comment.regDate}</span>>`;
-                    li += `<button type="button" class="btn btn-sm btn-outline-warning mod" data-bs-toggle="modal" data-bs-target="#commentModal">e</button>`;
-                    li += `<button type="button" class="btn btn-sm btn-outline-danger del">x</button>`;
+                    if (loginuser == comment.writer){
+                        li += `<button type="button" class="btn btn-sm btn-outline-warning mod" data-bs-toggle="modal" data-bs-target="#commentModal">e</button>`;
+                        li += `<button type="button" class="btn btn-sm btn-outline-danger del">x</button>`;
+                    }
                 li += `</li>`;
             }
             ul.innerHTML += li;
